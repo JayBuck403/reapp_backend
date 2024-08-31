@@ -10,16 +10,12 @@ const userAuth = require("./routes/userAuth");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cron = require("node-cron");
-
-//if (!config.get('jwtPrivateKey')) {
-//  console.error('FATAL ERROR');
-//  process.exit(1);
-//}
+require("dotenv").config();
 
 const app = express();
 
 mongoose
-  .connect("mongodb://localhost/Reapp")
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to mongoDB"))
   .catch((err) => console.error("Could not connect to mongoDB", err));
 
@@ -37,3 +33,5 @@ const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
+
+//

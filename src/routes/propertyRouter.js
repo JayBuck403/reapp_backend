@@ -59,6 +59,7 @@ router.get("/:_id", async (req, res) => {
     ? res.status(404).send("The specified property was not found")
     : res.send(
         _.pick(property, [
+	  "_id",
           "title",
           "type",
 	  "category",

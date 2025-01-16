@@ -1,35 +1,15 @@
-/*
- * paginate - Middleware function to paginated generated results from server
- *
- * @model: Mongodb model parameter
- * Return: req, res, next
- */
+// middlewares/paginate.js
+function paginate(req, res, next) {
+  // Set a default limit if none is provided in the query
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const startIndex = parseInt(req.query.startIndex, 10) || 0;
 
+  req.pagination = {
+    limit,
+    startIndex,
+  };
 
-module.exports = function paginate (model) {
-  return (req, res, next) => {
-    const page = parseInt(req.query.page);
-    const limit = parseInt(req.query.limit);
-    const start = (page - 1) * limit;
-    const end = page * limit;
-    const results = {};
-
-    if (end < model.count()) {
-      results.next = {
-        page: page + 1,
-	limit: limit
-      }
-    }
-
-    if (start > 0) {
-      results.previous = {
-        page: page - 1,
-	limit: limit
-      }
-    }
-    results.results = model.find().limit(limit).skip(start);
-
-    res.paginatedResults = results;
-    next();
-  }
+  next();
 }
+
+module.exports = paginate;

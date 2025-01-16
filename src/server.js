@@ -15,7 +15,7 @@ require("dotenv").config();
 const app = express();
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/reapp")
   .then(() => console.log("Connected to mongoDB"))
   .catch((err) => console.error("Could not connect to mongoDB", err));
 

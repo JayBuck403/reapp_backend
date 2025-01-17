@@ -119,7 +119,7 @@ router.get("/my_listings", auth, async (req, res) => {
 router.get("/listings/similar_listings", async (req, res) => {
   try {
     const similarProperties = await Property.aggregate([
-      { $sample: { size: 8 } },
+      { $sample: { size: 12 } },
     ]);
     res.status(200).send(similarProperties);
   } catch (error) {

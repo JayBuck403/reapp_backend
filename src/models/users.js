@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 8, maxlength: 255 },
     confirmPassword: {
       type: String,
-      required: true,
       minlength: 8,
       maxlength: 255,
     },
@@ -21,6 +20,8 @@ const userSchema = new mongoose.Schema(
     },
     userIpAddress: { type: String },
     isRegistered: Boolean,
+    isVerified: { type: Boolean, default: false },
+    verificationToken: { type: String },
     isActivated: { type: Boolean, default: false },
     listingActivationDays: { type: Number, default: 0 },
   },

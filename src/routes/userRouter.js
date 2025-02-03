@@ -8,6 +8,11 @@ const { validateUserSchema } = require("./validation");
 const auth = require("../middlewares/authMiddleware");
 const router = express.Router();
 const cron = require("node-cron");
+// const { sendEmail } = require("../middlewares/emailService");
+const nodemailer = require('nodemailer');
+const { sendEmail } = require("../middlewares/emailService");
+const jwt = require("jsonwebtoken");
+
 
 router.get("/", async (req, res) => {
   const users = await User.find({});
@@ -33,6 +38,7 @@ router.get("/:_id", async (req, res) => {
       );
 });
 
+
 router.post("/", async (req, res) => {
   try {
     const { error } = await validateUserSchema.validateAsync(req.body);
@@ -45,18 +51,61 @@ router.post("/", async (req, res) => {
   if (userAlreadyRegistered)
     return res.status(400).send("User already registered.");
 
+
   let newUser = new User(
-    _.pick(req.body, ["name", "email", "password", "confirmPassword", "phone"])
+    _.pick(req.body, ["name", "email", "password", "phone"])
   );
+
+  // Generate a verification token
+  const token = jwt.sign({ userId: newUser._id }, process.env.JWT_PRIVATE_KEY, {
+    expiresIn: "1d",
+  });
+
+  await sendEmail(newUser.email, newUser.name, token);
 
   const salt = await bcrypt.genSalt(10);
   newUser.password = await bcrypt.hash(newUser.password, salt);
-  newUser.confirmPassword = await bcrypt.hash(newUser.confirmPassword, salt);
 
   newUser = await newUser.save();
 
-  res.send(_.pick(newUser, ["_id", "name", "email", "phone"]));
+  res.status(201).json({message: "User created successfully!"});
 });
+
+router.get("/user/confirm-email", async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ error: "Missing confirmation token." });
+  }
+
+  try {
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
+
+    // Find user by ID
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Check if already verified
+    if (user.isVerified) {
+      return res.status(400).json({ error: "Email already verified." });
+    }
+
+    // Mark user as verified
+    user.isVerified = true;
+    await user.save();
+
+    res.status(200).json({ message: "Email confirmed successfully. You can now log in." });
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(400).json({ error: "Confirmation link expired. Please request a new one." });
+    }
+    res.status(400).json({ error: "Invalid confirmation token." });
+  }
+});
+
 
 router.put("/:_id", auth, async (req, res) => {
   if (req.body.password) {

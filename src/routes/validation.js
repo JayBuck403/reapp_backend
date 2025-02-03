@@ -48,6 +48,7 @@ const validateUserSchema = Joi.object({
   phone: Joi.string().required(),
   avatar: Joi.string(),
   isActivated: Joi.boolean(),
+  isVerified: Joi.boolean(),
   listingActivationDays: Joi.number(),
 });
 

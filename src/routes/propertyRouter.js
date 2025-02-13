@@ -12,14 +12,14 @@ const router = express.Router();
 
 // Get all properties with pagination
 router.get("/", paginate, async (req, res) => {
-  try {
+  // try {
   const properties = await Property.find()
     .skip(req.pagination.startIndex)
     .limit(req.pagination.limit);
   res.send(properties);
-  } catch (error) {
-    res.status(404).send("Not found");
-  }
+  // } catch (error) {
+  //   res.status(404).send("Not found");
+  // }
 });
 
 // Add a property

@@ -110,7 +110,7 @@ router.get("/search/q", async (req, res) => {
 });
 
 // User's property listings
-router.get("/my_listings", auth, async (req, res) => {
+router.get("/my_listings/:_id", auth, async (req, res) => {
   try {
     const properties = await Property.find({ companyRef: req.user._id });
     res.status(200).send(properties);

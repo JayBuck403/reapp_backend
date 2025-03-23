@@ -13,7 +13,7 @@ const router = express.Router();
 // Get all properties with pagination
 router.get("/", paginate, async (req, res) => {
   // try {
-  const properties = await Property.find()
+  const properties = await Property.find().sort({"createdAt": -1})
     .skip(req.pagination.startIndex)
     .limit(req.pagination.limit);
   res.send(properties);
@@ -96,7 +96,7 @@ router.get("/search/q", async (req, res) => {
         { category: qRegex },
         { landmarks: qRegex },
       ],
-    })
+    }).sort({"createdAt": -1})
       .populate("companyRef")
       .skip(startIndex)
       .limit(limit);
@@ -112,7 +112,7 @@ router.get("/search/q", async (req, res) => {
 // User's property listings
 router.get("/my_listings/:_id", auth, async (req, res) => {
   try {
-    const properties = await Property.find({ companyRef: req.user._id });
+    const properties = await Property.find({ companyRef: req.user._id }).sort({"createdAt": -1});
     res.status(200).send(properties);
   } catch (error) {
     res.status(500).send("Server error");
